@@ -1,0 +1,47 @@
+name: Deploy to PythonAnywhere
+
+on:
+  push:
+    branches:
+      - main  
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10' 
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pythonanywhere
+
+    - name: Deploy to PythonAnywhere
+      env:
+        USERNAME: ${{ secrets.PYTHONANYWHERE_USERNAME }}
+        API_TOKEN: ${{ secrets.PYTHONANYWHERE_API_TOKEN }}
+        PATH_TO_APP: home/$USERNAME/mysite
+      run: |
+        # Create a zip of your app excluding .git
+        zip -r flask_app.zip . -x '*.git*'
+
+        # Upload the zip file to PythonAnywhere
+        curl -X POST "https://www.pythonanywhere.com/api/v0/user/$USERNAME/$PATH_TO_APP/flask_app.zip" \
+          -H "Authorization: Token $API_TOKEN" \
+          --data-binary @flask_app.zip
+
+        # Use the PythonAnywhere API to unzip the file and reload the web app
+        curl -X POST "https://www.pythonanywhere.com/api/v0/user/$USERNAME/consoles/" \
+          -H "Authorization: Token $API_TOKEN" \
+          --data-urlencode "command=unzip -o /$PATH_TO_APP/flask_app.zip -d /$PATH_TO_APP && rm /$PATH_TO_APP/flask_app.zip"
+
+        # Reload the web app
+        curl -X POST "https://www.pythonanywhere.com/api/v0/user/$USERNAME/webapps/dushr.pythonanywhere.com/reload/" \
+          -H "Authorization: Token $API_TOKEN"
