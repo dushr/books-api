@@ -27,21 +27,18 @@ jobs:
       env:
         USERNAME: ${{ secrets.PYTHONANYWHERE_USERNAME }}
         API_TOKEN: ${{ secrets.PYTHONANYWHERE_API_TOKEN }}
-        PATH_TO_APP: home/$USERNAME/mysite
+        PATH_TO_APP: home/dushr/mysite
+        CONSOLE_ID: 36137230
       run: |
         # Create a zip of your app excluding .git
         zip -r flask_app.zip . -x '*.git*'
 
         # Upload the zip file to PythonAnywhere
-        curl -X POST "https://www.pythonanywhere.com/api/v0/user/$USERNAME/$PATH_TO_APP/flask_app.zip" \
+        curl -X POST "https://www.pythonanywhere.com/api/v0/user/$USERNAME/files/path/$PATH_TO_APP/flask_app.zip" \
           -H "Authorization: Token $API_TOKEN" \
-          --data-binary @flask_app.zip
+          -F "content=@flask_app.zip"
 
-        # Use the PythonAnywhere API to unzip the file and reload the web app
-        curl -X POST "https://www.pythonanywhere.com/api/v0/user/$USERNAME/consoles/" \
+        # Send commands to the console to unzip and clean up
+        curl -X POST "https://www.pythonanywhere.com/api/v0/user/$USERNAME/consoles/$CONSOLE_ID/send_input/" \
           -H "Authorization: Token $API_TOKEN" \
-          --data-urlencode "command=unzip -o /$PATH_TO_APP/flask_app.zip -d /$PATH_TO_APP && rm /$PATH_TO_APP/flask_app.zip"
-
-        # Reload the web app
-        curl -X POST "https://www.pythonanywhere.com/api/v0/user/$USERNAME/webapps/dushr.pythonanywhere.com/reload/" \
-          -H "Authorization: Token $API_TOKEN"
+          --data-urlencode "input=cd /$PATH_TO_APP\n"
