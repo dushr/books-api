@@ -1,0 +1,23 @@
+[
+    {
+        "title": "Book One",
+        "author": "Author A",
+        "genre": "Fiction",
+        "publish_year": 2020,
+        "image_url": "http://example.com/book1.jpg"
+    },
+    {
+        "title": "Book Two",
+        "author": "Author B",
+        "genre": "Non-Fiction",
+        "publish_year": 2019,
+        "image_url": "http://example.com/book2.jpg"
+    },
+    {
+        "title": "Book Three",
+        "author": "Author C",
+        "genre": "Fiction",
+        "publish_year": 2021,
+        "image_url": "http://example.com/book3.jpg"
+    }
+]
